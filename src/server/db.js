@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const fs = require("fs");
-require('dotenv').config({ path: "../../.env" })
+const path = require("path")
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') })
 
 
 const connection = mysql.createConnection({
@@ -15,6 +16,7 @@ const connection = mysql.createConnection({
 });
 connection.connect(function(err) {
     if (err) throw err;
+    else console.log("DB connected");
 });
 
 module.exports = connection;

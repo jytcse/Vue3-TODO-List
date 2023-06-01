@@ -6,7 +6,22 @@
   <router-view/>
 </template>
 
+<script>
+import { provide, readonly } from "vue";
+export default {
+  setup() {
+    const api_path = "http://localhost:8081";
+    provide("api_path", readonly(api_path));
+  }
+}
+
+</script>
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&family=Roboto&display=swap');
+*{
+  font-family: 'Noto Sans TC', sans-serif;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
