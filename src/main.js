@@ -3,4 +3,6 @@ import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 import "./style/index.css"; //import tailwindcss
-createApp(App).use(router).mount('#app')
+import axios from 'axios';
+axios.defaults.withCredentials= true;  
+createApp(App).use(router,axios).mount('#app')
