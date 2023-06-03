@@ -26,9 +26,9 @@ var router = express.Router();
 router.post('/login',function(req,res){
     const {username , password} = req.body;
     var loginFailMessage = '不正確的帳號或密碼!';
-    if(!username || !password){
-        return res.json(SetResJson(false, loginFailMessage));  
-    }
+    //If username or password is empty
+    if(!username || !password) return res.json(SetResJson(false, loginFailMessage));
+    //Get user's data from database
     db.query('SELECT * FROM `user` WHERE username = ?', [username], function(error, results, fields) {
         if (error) throw error;
         //User doesn't exist
@@ -38,12 +38,10 @@ router.post('/login',function(req,res){
             if(!result) return res.json(SetResJson(false, loginFailMessage));  
             req.session.regenerate((err) => {
                 if (err) console.error('Session regeneration error:', err);
-
                 req.session.user = {
                     username: username,
                     isLoggedIn: true
                 };
-
                 return res.json(SetResJson(true, null));
             });
         });

@@ -7,12 +7,8 @@
 </template>
 
 <script>
-import { provide, readonly } from "vue";
 export default {
-  setup() {
-    const api_path = "http://localhost:8081";
-    provide("api_path", readonly(api_path));
-  }
+
 }
 
 </script>

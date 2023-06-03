@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DashboardView from '../views/DashboardView.vue'
+
 const routes = [
   {
     path: '/',
@@ -12,7 +13,6 @@ const routes = [
     name: 'dashboard',
     component: DashboardView
   },
-  
   {
     path: '/about',
     name: 'about',
@@ -27,5 +27,7 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+
 
 export default router
