@@ -1,16 +1,20 @@
 <template>
-  <nav class="h-16 flex justify-center items-center gap-4">
+  <nav class="h-16 bg-[#f2e5d3] flex justify-center items-center gap-4 shadow-sm text-lg">
+    
     <template v-if="!isLoggedIn">
-      <router-link to="/">Home</router-link> |
+
+      <router-link to="/" class="text-[#403933] font-bold ">Home</router-link> |
     </template>
     <template v-if="isLoggedIn">
-      <router-link to="/Dashboard">Dashboard</router-link> |
+      <router-link to="/Dashboard" class="text-[#403933] font-bold">Dashboard</router-link> |
     </template>
-    <router-link to="/about">About</router-link>
+    <!-- #8C4637 -->
+    <router-link to="/about" class="text-[#403933] font-bold">About</router-link>
     <template v-if="isLoggedIn">
       |
-      <a href="./" @click.prevent="logout">Logout</a>
+      <a href="./" @click.prevent="logout" class="text-[#403933] font-bold">Logout</a>
     </template>
+    
   </nav>
   <router-view/>
 </template>
@@ -58,4 +62,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.router-link-active.router-link-exact-active{
+  color: #864a28;
+}
 </style>
