@@ -1,8 +1,13 @@
 <template>
   <nav class="h-16 flex justify-center items-center gap-4">
-    <router-link to="/">Home</router-link> |
+    <template v-if="!isLoggedIn">
+      <router-link to="/">Home</router-link> |
+    </template>
+    <template v-if="isLoggedIn">
+      <router-link to="/Dashboard">Dashboard</router-link> |
+    </template>
     <router-link to="/about">About</router-link>
-    <template  v-if="isLoggedIn">
+    <template v-if="isLoggedIn">
       |
       <a href="./" @click.prevent="logout">Logout</a>
     </template>
