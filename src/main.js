@@ -17,7 +17,7 @@ const app = createApp(App);
 app.use(VueAxios, axios);
 app.provide("axios", axiosInstance);
 const isLoggedIn = ref(await checkLogin());
-app.provide("isLoggedIn", isLoggedIn.value);
+app.provide("isLoggedIn", isLoggedIn);
 app.use(router);
 app.mount('#app');
 
