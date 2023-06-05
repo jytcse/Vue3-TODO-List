@@ -8,7 +8,6 @@
     <template v-if="isLoggedIn">
       <router-link to="/Dashboard" class="text-[#403933] font-bold">Dashboard</router-link> |
     </template>
-    <!-- #8C4637 -->
     <router-link to="/about" class="text-[#403933] font-bold">About</router-link>
     <template v-if="isLoggedIn">
       |

@@ -11,15 +11,22 @@
             </svg>
           </button>
 
-          <div v-for="n in 20" :key="n" class="w-[24%] h-[50%] bg-white  border-2 shadow-sm rounded-lg pt-2 pl-2 overflow-hidden">
+          <div v-for="n in 2" :key="n" class="w-[24%] h-[50%] bg-white  border-2 shadow-sm rounded-lg pt-2 pl-2 overflow-hidden">
             <div>
-              <span class="text-3xl font-bold">6/4</span>
+              <span class="text-3xl font-bold">6/{{ n }}</span>
               <span>工作</span>
             </div>
             <hr class="mt-3 mx-auto">
             <div class="h-full overflow-y-auto myList">
-              <ul>
-                <li v-for="n in 20" :key="n">{{ n }}</li>
+              <ul class=" ">
+                <template  v-for="k in 1" :key="k">
+                  <label>
+                  <li class="">
+                      <input type="checkbox" class="w-4 h-4 align-bottom mr-2">
+                      {{ k }}
+                    </li>
+                  </label>
+                </template>
               </ul>
             </div>
           </div>
@@ -28,19 +35,34 @@
 
       </div>
 
-      <div class="chart  2xl:w-3/12 xl:w-3/12 rounded-3xl border-solid border-2 border-gray-300 ">
-
+      <div class="w-3/12 rounded-3xl border-solid border-2 border-gray-300 p-5 overflow-y-auto flex flex-col max-h-[100%] justify-start">
+        <div class="basis-2/12">
+          <div>
+            <select class="w-[50%] border p-2">
+                <option v-for="month in 12" :key="month" :value="month">{{ month }}月</option>
+            </select>
+            <select class="w-[50%] border p-2">
+                <option v-for="day in 31" :key="day" :value="day">{{ day }}日</option>
+            </select>
+          </div>
+          <div class="flex justify-center mt-5">
+            <button class="p-3 w-48 border rounded-s-sm">事項</button>
+            <button class="p-3 w-48 border rounded-e-sm">圖表</button>
+          </div>
+        </div>
+        <ShowList :list-type="'未完成'"></ShowList>
+        <ShowList :list-type="'已完成'"></ShowList>
       </div>
 
   </div>
 </template>
 
 <script>
-
+import ShowList from '@/components/ShowList.vue';
 export default {
   name: 'DashboardView',
   components: {
-   
+    ShowList
   }
 }
 </script>
