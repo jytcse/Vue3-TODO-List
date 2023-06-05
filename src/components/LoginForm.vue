@@ -1,6 +1,6 @@
 <template>
-  <div class="loginForm">
-    <form action="./" @submit.prevent="submit"  method="post" class="flex justify-center ">
+  <div class="loginForm mt-5">
+    <form action="./" @submit.prevent="submit"  method="post" class="flex justify-center items-center">
       <div class="border flex flex-col text-left px-10 py-3 rounded-md drop-shadow-sm">
         <h1 class="text-center text-3xl font-medium my-3">登入系統</h1>
         <div v-if="(!isSubmit && errorMessage)" class="transition-transform duration-1000 animate-shake w-auto h-10 mb-2 bg-red-300 rounded-md flex justify-center items-center">
@@ -10,11 +10,11 @@
         <input type="text" name="username" v-model="username" required placeholder="" class="text-lg outline-none" >
         <span class="text-xl my-2">密碼:</span>
         <input type="password" name="passowrd" v-model="password" required placeholder="" class="text-lg outline-none">
-        <button v-if="!isSubmit" type="submit" class=" drop-shadow rounded-full bg-blue-700 text-white px-5 py-2 mb-3 mt-4">登入</button>
+        <button v-if="!isSubmit" type="submit" class=" drop-shadow rounded-full bg-[#864a28] text-white px-5 py-2 mb-3 mt-4">登入</button>
         <button v-else type="button" class="
         inline-flex items-center justify-center px-5 py-2 mb-3 mt-4 
         leading-6 text-sm shadow rounded-full text-white 
-        bg-blue-700 hover:bg-indigo-400 transition 
+        bg-[#864a28] hover:bg-[#a97557] transition font-bold
         ease-in-out duration-200 " disabled="">
           <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
