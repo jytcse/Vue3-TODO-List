@@ -23,6 +23,7 @@ app.use(session({
 
 
 var router = express.Router();
+
 router.post('/login',function(req,res){
     const {username , password} = req.body;
     var loginFailMessage = '不正確的帳號或密碼!';
@@ -40,6 +41,7 @@ router.post('/login',function(req,res){
                 if (err) console.error('Session regeneration error:', err);
                 req.session.user = {
                     username: username,
+                    userId: results[0]['ID'],
                     isLoggedIn: true
                 };
                 return res.json(SetResJson(true, null));
@@ -62,6 +64,28 @@ router.get('/logout',function(req,res){
     req.session.destroy(() => {
         return res.json(SetResJson(true, "session destroyed"));  
     })
+});
+
+router.get('/myList/:year/:month/:day',function(req,res){
+    if (!req.session.user || !req.session.user.isLoggedIn) {
+        res.status(401);
+        return res.json(SetResJson(false, '權限不足'));
+    }
+    
+    db.query('SELECT `Date` ,`Name`,`Content`,`Status`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId,`${req.params.year}-${req.params.month}-${req.params.day}`], function(error, results, fields) {
+        if (error) throw error;
+        if (results.length < 1){
+            return res.json(SetResJson(true, "查無資料", null));
+        }
+        //時間處理
+        results = results.map(item => {
+            const date = new Date(item.Date);
+            const formattedDate = date.toISOString().split('T')[0];
+            return { ...item, Date: formattedDate };
+        });
+        // console.log(results);
+        res.json(SetResJson(true,null,results));  
+    }); 
 });
 
 

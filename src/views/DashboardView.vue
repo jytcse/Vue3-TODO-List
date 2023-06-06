@@ -38,20 +38,36 @@
       <div class="w-3/12 rounded-3xl border-solid border-2 border-gray-300 p-5 overflow-y-auto flex flex-col max-h-[100%] justify-start">
         <div class="basis-2/12">
           <div>
-            <select class="w-[50%] border p-2">
-                <option v-for="month in 12" :key="month" :value="month">{{ month }}月</option>
+            <select class="w-[100%] border p-2" v-model="nowYear">
+              <!-- <option v-for="year in 3" :key="year" :value="nowYear + year - 1">{{ nowYear }}年</option> -->
+              <option value="2023">2023年</option>
+              <option value="2024">2024年</option>
+              <option value="2025">2025年</option>
             </select>
-            <select class="w-[50%] border p-2">
-                <option v-for="day in 31" :key="day" :value="day">{{ day }}日</option>
+            
+            <select class="w-[50%] border p-2" v-model="nowMonth">
+              <option v-for="month in 12"
+                :key="month" 
+                :value="month">
+                {{ formatTime(month) }}月
+           
+              </option>
+            </select>
+          <select class="w-[50%] border p-2"  v-model="nowDay">
+              <option v-for="day in daysInMonth"
+                :key="formatTime(day)" 
+                :value="day">
+                {{ formatTime(day) }}日
+              </option>
             </select>
           </div>
-          <div class="flex justify-center mt-5">
+          <div class="flex justify-center mt-4 mb-2">
             <button class="p-3 w-48 border rounded-s-sm">事項</button>
             <button class="p-3 w-48 border rounded-e-sm">圖表</button>
           </div>
         </div>
-        <ShowList :list-type="'未完成'"></ShowList>
-        <ShowList :list-type="'已完成'"></ShowList>
+        <ShowList :list-type="'未完成'" :list-data="(todoList)"></ShowList>
+        <ShowList :list-type="'已完成'" :list-data="(doneList)"></ShowList>
       </div>
 
   </div>
@@ -59,10 +75,81 @@
 
 <script>
 import ShowList from '@/components/ShowList.vue';
+import { onMounted,inject,ref,computed, watch} from 'vue';
 export default {
   name: 'DashboardView',
   components: {
     ShowList
+  },
+  setup(){
+    
+    const axios = inject('axios');
+    let listData = ref({});
+    let todoList = ref([]);
+    let doneList = ref([]);
+
+    //時間
+    const today = new Date();
+    const nowYear = ref(today.getFullYear());
+    const nowMonth = ref(today.getMonth() + 1);
+    const nowDay = ref(today.getDate());
+    const daysInMonth = computed(() => {
+      const month = nowMonth.value;
+      const year = nowYear.value;
+      const days = new Date(year, month, 0).getDate();
+      return Array.from({ length: days }, (_, index) => index + 1);
+    });
+    const formatTime = (time) => {
+      //補零
+      return time < 10 ? '0' + time : time;
+    };
+
+    onMounted(() => {
+      GetMyList(nowYear.value,nowMonth.value,nowDay.value,todoList,doneList);
+    })
+    watch([nowYear, nowMonth, nowDay], () => {
+      GetMyList(nowYear.value,nowMonth.value,nowDay.value,todoList,doneList);
+    });
+    
+    /**
+     * 取得使用者的todolist
+     * @function GetMyList
+     * @param {string} year - year
+     * @param {string} month - month
+     * @param {string} day - day
+     * @param {ref} todoList - todoList
+     * @param {ref} doneList - doneList 
+     */
+     function GetMyList(year,month,day,todoList,doneList){
+      axios.get(`/myList/${year}/${month}/${day}`)
+      .then( (response) => {
+        if(response.data["success"]) {
+          listData.value = response.data;
+          //將資料分成未完成跟完成
+          if(response.data["message"] == '查無資料'){
+            todoList.value = null;
+            doneList.value = null;
+          }else{
+            todoList.value = listData.value.data.filter(item => item.Status === 0);
+            doneList.value = listData.value.data.filter(item => item.Status === 1);
+          }
+        }
+      })
+      .catch( (error) => console.log(error));
+    }
+
+
+
+    return{
+      listData,
+      todoList,
+      doneList,
+      nowYear,
+      nowMonth,
+      nowDay,
+      daysInMonth,
+      formatTime,
+    }
   }
 }
 </script>
