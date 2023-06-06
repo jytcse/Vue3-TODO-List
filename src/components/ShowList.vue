@@ -7,10 +7,12 @@
         <ul class="overflow-y-auto h-64 border flex flex-col gap-1 p-2">
           <template v-for="node in props.listData" :key="node">
             <li>
-              <input type="checkbox" :checked="node.Status == 1" :id="node['Node-ID']" class="line-through w-6 h-6 align-bottom mr-2">
-              <span :class="props.listType == '已完成'?'line-through':''">
-                {{ node.Name }} - {{ node.Content }} 
-              </span>
+              <label :for="node['Node-ID']">
+                <input type="checkbox" :checked="node.Status == 1" :id="node['Node-ID']" class="line-through w-6 h-6 align-bottom mr-2">
+                <span :class="props.listType == '已完成'?'line-through':''">
+                  {{ node.Name }} - {{ node.Content }} 
+                </span>
+              </label>
             </li>
           </template>
         </ul>
