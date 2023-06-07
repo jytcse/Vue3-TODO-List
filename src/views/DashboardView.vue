@@ -3,7 +3,7 @@
     <div class="border-2 border-amber-100 bg-[#fff3e3]  
       w-[calc(75%-0.75rem)] rounded-2xl max-h-full shadow-inner p-5 overflow-auto">
       <div v-if="listData != null" class="flex flex-wrap gap-4 h-full">
-        <ListBlock v-for="(category,index) in classifiedData" :key="category" :data="category" :index="index"></ListBlock>
+        <ListBlock v-for="(category,index) in classifiedData" :key="category" :data="category" :index="index" @need-refresh="refresh"></ListBlock>
       </div>
       <div v-else class="flex flex-wrap gap-4 justify-center items-center font-bold text-4xl h-full">本日還沒有應做事項</div>
 

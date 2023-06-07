@@ -52,7 +52,7 @@ router.post('/login', function (req, res) {
 
 
 router.get('/check_login', function (req, res) {
-    if (req.session.user && req.session.user.isLoggedIn) {
+    if (req.session.user != null && req.session.user && req.session.user.isLoggedIn) {
         return res.json(SetResJson(true, '使用者已登入'));
     } else {
         return res.json(SetResJson(false, '使用者未登入'));
@@ -68,9 +68,9 @@ router.get('/logout', function (req, res) {
 
 router.get('/myList/:year/:month/:day', function (req, res) {
     //檢查訪問權限
+     if(req.session.user == null) return res.json(SetResJson(false, "未登入", null));
     CheckLoginStatus(req, res);
-    if(req.session.user.userId == null) return ;
-    db.query('SELECT `Date` ,`Name`,`Content`,`Status`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId, `${req.params.year}-${req.params.month}-${req.params.day}`], function (error, results, fields) {
+    db.query('SELECT `Date` ,`Name`,`Content`,`Status`,`list`.`ID` AS `list-ID`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId, `${req.params.year}-${req.params.month}-${req.params.day}`], function (error, results, fields) {
         if (error) return res.json(SetResJson(false, "伺服器錯誤", null));
         if (results.length < 1) {
             return res.json(SetResJson(true, "查無資料", null));
@@ -101,6 +101,7 @@ router.patch('/myList/status/update', function (req, res) {
 
 router.post('/myList/create', function (req, res) {
     //檢查訪問權限
+    if(req.session.user == null) return res.json(SetResJson(false, "未登入", null));
     CheckLoginStatus(req, res);
     const { listName, listData, Date } = req.body;
     if (listName === "" || listName === null) return res.json(SetResJson(false, "清單名稱不可為空白", null));
@@ -119,6 +120,23 @@ router.post('/myList/create', function (req, res) {
 
 });
 
+
+router.delete('/myList/delete/:listId', function (req, res) {
+    //檢查訪問權限
+    CheckLoginStatus(req, res);
+    
+    //先利用客戶端傳過來的listID抓取該List所屬的使用者ID，並利用抓取到的使用者ID與現在登入的使用者ID進行比對，來確認是否有權限進行刪除
+    db.query('SELECT `User-ID` FROM `todo-list` WHERE `ID` = ?',[req.params.listId], function (error, results, fields) {
+        if(results.length < 1) return res.json(SetResJson(false,"無效ListID"));
+        let userIdFromDB = results[0]["User-ID"];
+        if(userIdFromDB != req.session.user.userId) return res.json(SetResJson(false,"無法刪除不屬於自己的清單"));
+        db.query('DELETE FROM `todo-list` WHERE `todo-list`.`ID` = ? AND `todo-list`.`User-ID`=?',[req.params.listId,req.session.user.userId],
+        function (error, results, fields) {
+            if(error) return res.json(SetResJson(false,"刪除失敗"));
+            return res.json(SetResJson(true,null));
+        });
+    });
+});
 
 app.use('/', router);
 
@@ -152,7 +170,7 @@ function SetResJson(success, message = null, data = null) {
  * @returns {Object} - 包含狀態和訊息的物件
  */
 function CheckLoginStatus(req, res) {
-    if (!req.session.user || !req.session.user.isLoggedIn) {
+    if (req.session.user == null || !req.session.user || !req.session.user.isLoggedIn) {
         res.status(401);
         return res.json(SetResJson(false, '權限不足'));
     }
