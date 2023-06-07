@@ -44,8 +44,8 @@
           <button class="p-3 w-48 border rounded-e-sm">圖表</button>
         </div>
       </div>
-      <ShowList :list-type="'未完成'" :list-data="(todoList)"></ShowList>
-      <ShowList :list-type="'已完成'" :list-data="(doneList)"></ShowList>
+      <ShowList :list-type="'未完成'" :list-data="(todoList)" @need-refresh="refresh"></ShowList>
+      <ShowList :list-type="'已完成'" :list-data="(doneList)" @need-refresh="refresh"></ShowList>
     </div>
 
   </div>
@@ -70,7 +70,6 @@ export default {
     const todoList = ref([]);
     const doneList = ref([]);
     const classifiedData = ref({});
-
     //時間
     const today = new Date();
     const nowYear = ref(today.getFullYear());
@@ -94,6 +93,14 @@ export default {
       GetMyList(nowYear.value,nowMonth.value,nowDay.value,todoList,doneList,classifiedData);
     });
     
+    /**
+     * ShowList元件更新todolist的狀態時要重新取得更新後的資料
+     * @function refresh
+     */
+    function refresh(){
+      GetMyList(nowYear.value,nowMonth.value,nowDay.value,todoList,doneList,classifiedData);
+    }
+
     /**
      * 取得使用者的todolist
      * @function GetMyList
@@ -158,7 +165,8 @@ export default {
       nowDay,
       daysInMonth,
       formatTime,
-      classifiedData
+      classifiedData,
+      refresh
     }
   }
 }

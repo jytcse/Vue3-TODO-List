@@ -67,11 +67,8 @@ router.get('/logout',function(req,res){
 });
 
 router.get('/myList/:year/:month/:day',function(req,res){
-    if (!req.session.user || !req.session.user.isLoggedIn) {
-        res.status(401);
-        return res.json(SetResJson(false, '權限不足'));
-    }
-    
+    //檢查訪問權限
+    CheckLoginStatus(req,res);
     db.query('SELECT `Date` ,`Name`,`Content`,`Status`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId,`${req.params.year}-${req.params.month}-${req.params.day}`], function(error, results, fields) {
         if (error) throw error;
         if (results.length < 1){
@@ -86,6 +83,19 @@ router.get('/myList/:year/:month/:day',function(req,res){
         // console.log(results);
         res.json(SetResJson(true,null,results));  
     }); 
+});
+
+router.patch('/myList/status/update',function(req,res){
+    //檢查訪問權限
+    CheckLoginStatus(req,res);
+    let data = req.body.checkBoxList;
+    const categorizedData = data.map(str => str.split('_').map(Number));
+    categorizedData.forEach((item)=>{
+        db.query('UPDATE `list-node` SET `Status`= ? WHERE `list-node`.`ID`= ?',[!item[1],item[0]],function(error, results, fields) {
+            if (error) throw error;
+        });
+    })
+    res.json(SetResJson(true,null,null));
 });
 
 
@@ -111,4 +121,18 @@ app.listen(port, function() {
         "message":message,
         "data":data
     };
+}
+
+
+/**
+ * 檢查訪問權限
+ * @function CheckLoginStatus
+ * @param {Object} user - 使用者 session 物件
+ * @returns {Object} - 包含狀態和訊息的物件
+ */
+ function CheckLoginStatus(req,res) {
+    if (!req.session.user || !req.session.user.isLoggedIn) {
+        res.status(401);
+        return res.json(SetResJson(false, '權限不足'));
+    }
 }
