@@ -68,7 +68,7 @@ router.get('/logout', function (req, res) {
 
 router.get('/myList/:year/:month/:day', function (req, res) {
     //檢查訪問權限
-     if(req.session.user == null) return res.json(SetResJson(false, "未登入", null));
+    if (req.session.user == null) return res.json(SetResJson(false, "未登入", null));
     CheckLoginStatus(req, res);
     db.query('SELECT `Date` ,`Name`,`Content`,`Status`,`list`.`ID` AS `list-ID`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId, `${req.params.year}-${req.params.month}-${req.params.day}`], function (error, results, fields) {
         if (error) return res.json(SetResJson(false, "伺服器錯誤", null));
@@ -101,7 +101,7 @@ router.patch('/myList/status/update', function (req, res) {
 
 router.post('/myList/create', function (req, res) {
     //檢查訪問權限
-    if(req.session.user == null) return res.json(SetResJson(false, "未登入", null));
+    if (req.session.user == null) return res.json(SetResJson(false, "未登入", null));
     CheckLoginStatus(req, res);
     const { listName, listData, Date } = req.body;
     if (listName === "" || listName === null) return res.json(SetResJson(false, "清單名稱不可為空白", null));
@@ -124,16 +124,42 @@ router.post('/myList/create', function (req, res) {
 router.delete('/myList/delete/:listId', function (req, res) {
     //檢查訪問權限
     CheckLoginStatus(req, res);
-    
+
     //先利用客戶端傳過來的listID抓取該List所屬的使用者ID，並利用抓取到的使用者ID與現在登入的使用者ID進行比對，來確認是否有權限進行刪除
-    db.query('SELECT `User-ID` FROM `todo-list` WHERE `ID` = ?',[req.params.listId], function (error, results, fields) {
-        if(results.length < 1) return res.json(SetResJson(false,"無效ListID"));
+    db.query('SELECT `User-ID` FROM `todo-list` WHERE `ID` = ?', [req.params.listId], function (error, results, fields) {
+        if (results.length < 1) return res.json(SetResJson(false, "無效ListID"));
         let userIdFromDB = results[0]["User-ID"];
-        if(userIdFromDB != req.session.user.userId) return res.json(SetResJson(false,"無法刪除不屬於自己的清單"));
-        db.query('DELETE FROM `todo-list` WHERE `todo-list`.`ID` = ? AND `todo-list`.`User-ID`=?',[req.params.listId,req.session.user.userId],
-        function (error, results, fields) {
-            if(error) return res.json(SetResJson(false,"刪除失敗"));
-            return res.json(SetResJson(true,null));
+        if (userIdFromDB != req.session.user.userId) return res.json(SetResJson(false, "無法刪除不屬於自己的清單"));
+        db.query('DELETE FROM `todo-list` WHERE `todo-list`.`ID` = ? AND `todo-list`.`User-ID`=?', [req.params.listId, req.session.user.userId],
+            function (error, results, fields) {
+                if (error) return res.json(SetResJson(false, "刪除失敗"));
+                return res.json(SetResJson(true, null));
+            });
+    });
+});
+
+//!!!!!!!!!!!!!!!!!!!!!!!!
+//目前想不到更好寫法，先用超醜寫法，把要更新的list底下的node先全部刪除，再新增使用者想要修改的
+//隱憂 Database的auto increment會瘋狂暴增
+//!!!!!!!!!!!!!!!!!!!!!!!!
+router.post('/myList/edit/:listId', function (req, res) {
+
+    //檢查訪問權限
+    if (req.session.user == null) return res.json(SetResJson(false, "未登入", null));
+    CheckLoginStatus(req, res);
+    const { listData } = req.body;
+    if (listData.length === 0) return res.json(SetResJson(false, "應做事項至少要有一件事情", null));
+
+    db.query('SELECT `User-ID` FROM `todo-list` WHERE `ID` = ?', [req.params.listId], function (error, results, fields) {
+        if (results.length < 1) return res.json(SetResJson(false, "無效ListID"));
+        let userIdFromDB = results[0]["User-ID"];
+        if (userIdFromDB != req.session.user.userId) return res.json(SetResJson(false, "無法修改不屬於自己的清單"));
+        db.query('DELETE FROM `list-node` WHERE `list-node`.`List-ID` = ?', [req.params.listId], function (error, results, fields) {
+            for (const item of listData) {
+                db.query('INSERT INTO `list-node` (`List-ID`,`Content`) VALUE(?,?)', [req.params.listId, item], function (error, results, fields) {
+                });
+            };
+            return res.json(SetResJson(true, "修改成功", null));
         });
     });
 });

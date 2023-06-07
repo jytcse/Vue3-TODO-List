@@ -1,5 +1,5 @@
 <template >
-  <div class="w-[24%] h-[50%] bg-white hover:border-gray-400 transition-all duration-300  border-2 shadow-sm rounded-lg p-3 overflow-hidden">
+  <div class="myList w-[24%] h-[50%] bg-white hover:border-gray-400 transition-all duration-300  border-2 shadow-sm rounded-lg p-3 overflow-hidden">
     <div>
       <div class="h-[50%] w-full">
         <div class="flex items-baseline justify-between">
@@ -65,4 +65,23 @@ export default {
 
 <style scoped>
 
+.myList::-webkit-scrollbar {
+  width: 5px;
+  display: none;
+}
+.myList:hover::-webkit-scrollbar {
+  display: inline;
+}
+.myList::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.myList::-webkit-scrollbar-thumb {
+  background-color: rgb(166, 166, 166); 
+  border-radius: 3px;
+}
+
+.myList::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
 </style>

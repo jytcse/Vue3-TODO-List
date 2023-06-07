@@ -35,18 +35,23 @@
           </select>
         </div>
         <div class="flex justify-center mt-4 mb-2">
-          <button class="p-3 w-48 border rounded-s-sm hover:border-gray-800 transition-all duration-300" :class="page == 'list'?'bg-[#ffebd2]':''" @click="switchBtn('list')">事項</button>
+          <button v-if="listData != null" class="p-3 w-48 border rounded-s-sm hover:border-gray-800 transition-all duration-300" :class="page == 'list'?'bg-[#ffebd2]':''" @click="switchBtn('list')">事項</button>
+          <button v-if="listData != null" class="p-3 w-48 border rounded-e-sm hover:border-gray-800 transition-all duration-300" :class="page == 'editList'?'bg-[#ffebd2]':''" @click="switchBtn('editList')">編輯清單</button>
           <button class="p-3 w-48 border rounded-e-sm hover:border-gray-800 transition-all duration-300" :class="page == 'newList'?'bg-[#ffebd2]':''" @click="switchBtn('newList')">建立新清單</button>
         </div>
       </div>
-      <div v-if="page == 'list'">
+      <div v-if="page == 'list' && listData != null">
+        <!-- 顯示清單事項 -->
         <ShowList :list-type="'未完成'" :list-data="(todoList)" @need-refresh="refresh"></ShowList>
         <ShowList :list-type="'已完成'" :list-data="(doneList)" @need-refresh="refresh" class="mt-2"></ShowList>
       </div>
-      <div v-else class="h-full">
+      <div v-else-if="page == 'newList'" class="h-full">
         <!-- 建立新清單 -->
         <NewListForm :now-year="nowYear" :now-month="nowMonth" :now-day="nowDay" @need-refresh="refresh"></NewListForm>
-
+      </div>
+      <div v-else class="h-full">
+        <!-- 編輯清單 -->
+        <EditListForm :classified-data="classifiedData" :now-year="nowYear" :now-month="nowMonth" :now-day="nowDay" @need-refresh="refresh"></EditListForm>
       </div>
     </div>
 
@@ -57,6 +62,7 @@
 import ShowList from '@/components/ShowList.vue';
 import ListBlock from '@/components/ListBlock.vue';
 import NewListForm from '@/components/NewListForm.vue';
+import EditListForm from '@/components/EditListForm.vue';
 
 import { onMounted,inject,ref,computed, watch} from 'vue';
 export default {
@@ -64,7 +70,8 @@ export default {
   components: {
     ShowList,
     ListBlock,
-    NewListForm
+    NewListForm,
+    EditListForm
   },
   setup(){
     const axios = inject('axios');
@@ -119,8 +126,6 @@ export default {
       axios.get(`/myList/${year}/${month}/${day}`)
       .then( (response) => {
         if(response.data["success"]) {
-          
-          //將資料分成未完成跟完成
           if(response.data["message"] == '查無資料'){
             listData.value = null;
             todoList.value = null;
@@ -129,8 +134,10 @@ export default {
             page.value = 'newList';
           }else{
             listData.value = response.data;
+            //將資料分成未完成跟完成
             todoList.value = listData.value.data.filter(item => item.Status === 0);
             doneList.value = listData.value.data.filter(item => item.Status === 1);
+            //有資料的話右邊顯示清單資料
             page.value = 'list';
             // 依照類別名稱分類
             listData.value.data.forEach(item => {
@@ -178,28 +185,4 @@ export default {
 </script>
 
 <style scoped>
-.newList{
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%23D7A480' stroke-width='5' stroke-dasharray='10' stroke-dashoffset='41' stroke-linecap='round'/%3e%3c/svg%3e");
-  border-radius: 8px;
-  
-}
-.myList::-webkit-scrollbar {
-  width: 5px;
-  display: none;
-}
-.myList:hover::-webkit-scrollbar {
-  display: inline;
-}
-.myList::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-}
-
-.myList::-webkit-scrollbar-thumb {
-  background-color: rgb(166, 166, 166); 
-  border-radius: 3px;
-}
-
-.myList::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
 </style>
