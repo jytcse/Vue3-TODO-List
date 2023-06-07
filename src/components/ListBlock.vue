@@ -1,5 +1,5 @@
 <template >
-  <div class="w-[24%] h-[50%] bg-white  border-2 shadow-sm rounded-lg p-3 overflow-hidden">
+  <div class="w-[24%] h-[50%] bg-white hover:border-gray-400 transition-all duration-300  border-2 shadow-sm rounded-lg p-3 overflow-hidden">
     <div>
       <div class="h-[50%] w-full">
         <span class="font-bold text-2xl ml-2 mb-2 text-center">{{ index }} </span>
@@ -30,9 +30,7 @@ export default {
   },
 
   setup(props) {
-      const name = 'ListBlock';	
       return{
-        name,
         props,
       }
     }

@@ -4,8 +4,8 @@
       <div class="flex flex-row justify-between">
         <h1 class="font-bold text-2xl mb-2">{{ listType }}:</h1>
         <div v-if="listData != null && listData.length">
-          <button v-if="!isEdit" class="border p-1" @click="switchBtn('edit')">編輯</button>
-          <button v-else class="border p-1" @click="switchBtn('submit')">儲存</button>
+          <button v-if="!isEdit" class="border p-1 w-28 hover:border-gray-800  transition-all duration-300" @click="switchBtn('edit')">編輯</button>
+          <button v-else class="border p-1 w-28 hover:border-gray-800  transition-all duration-300" @click="switchBtn('submit')">儲存</button>
         </div>
       </div>
       
@@ -46,16 +46,15 @@ export default ({
       let switchBtn = (type)=>{
           isEdit.value = !isEdit.value;
           if(type == 'submit' && checkBoxList.value.length != 0){
-          axios.patch(`/myList/status/update`,{
-            "checkBoxList" : checkBoxList.value
-          })
-          .then( (response) => {
-            console.log(response.data);
-            checkBoxList.value = [];
-            emit('needRefresh');
-          })
-          .catch( (error) => console.log(error));
-
+            axios.patch(`/myList/status/update`,{
+              "checkBoxList" : checkBoxList.value
+            })
+            .then( (response) => {
+              console.log(response.data);
+              checkBoxList.value = [];
+              emit('needRefresh');
+            })
+            .catch( (error) => console.log(error));
           }
       }
       
@@ -63,7 +62,6 @@ export default ({
         //如果使用者在編輯時，選擇其他日期，將按鈕還原成編輯
         checkBoxList.value = [];
         isEdit.value = false;
-        // console.log(props.listData);
       });
       return{
         props,

@@ -10,7 +10,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 
 app.use(cors({
-    origin:[ 'http://localhost:8080', 'http://localhost:8081'],
+    origin: ['http://localhost:8080', 'http://localhost:8081'],
     credentials: true
 }));
 app.use(express.json());
@@ -24,19 +24,19 @@ app.use(session({
 
 var router = express.Router();
 
-router.post('/login',function(req,res){
-    const {username , password} = req.body;
+router.post('/login', function (req, res) {
+    const { username, password } = req.body;
     var loginFailMessage = '不正確的帳號或密碼!';
     //If username or password is empty
-    if(!username || !password) return res.json(SetResJson(false, loginFailMessage));
+    if (!username || !password) return res.json(SetResJson(false, loginFailMessage));
     //Get user's data from database
-    db.query('SELECT * FROM `user` WHERE username = ?', [username], function(error, results, fields) {
+    db.query('SELECT * FROM `user` WHERE username = ?', [username], function (error, results, fields) {
         if (error) throw error;
         //User doesn't exist
-        if (results.length < 1) return res.json(SetResJson(false, loginFailMessage));  
+        if (results.length < 1) return res.json(SetResJson(false, loginFailMessage));
         //Auth
-        bcrypt.compare(password, results[0]['password'], function(err, result) {
-            if(!result) return res.json(SetResJson(false, loginFailMessage));  
+        bcrypt.compare(password, results[0]['password'], function (err, result) {
+            if (!result) return res.json(SetResJson(false, loginFailMessage));
             req.session.regenerate((err) => {
                 if (err) console.error('Session regeneration error:', err);
                 req.session.user = {
@@ -47,11 +47,11 @@ router.post('/login',function(req,res){
                 return res.json(SetResJson(true, null));
             });
         });
-    }); 
+    });
 });
 
 
-router.get('/check_login', function(req, res) {
+router.get('/check_login', function (req, res) {
     if (req.session.user && req.session.user.isLoggedIn) {
         return res.json(SetResJson(true, '使用者已登入'));
     } else {
@@ -60,18 +60,19 @@ router.get('/check_login', function(req, res) {
 });
 
 
-router.get('/logout',function(req,res){
+router.get('/logout', function (req, res) {
     req.session.destroy(() => {
-        return res.json(SetResJson(true, "session destroyed"));  
+        return res.json(SetResJson(true, "session destroyed"));
     })
 });
 
-router.get('/myList/:year/:month/:day',function(req,res){
+router.get('/myList/:year/:month/:day', function (req, res) {
     //檢查訪問權限
-    CheckLoginStatus(req,res);
-    db.query('SELECT `Date` ,`Name`,`Content`,`Status`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId,`${req.params.year}-${req.params.month}-${req.params.day}`], function(error, results, fields) {
-        if (error) throw error;
-        if (results.length < 1){
+    CheckLoginStatus(req, res);
+    if(req.session.user.userId == null) return ;
+    db.query('SELECT `Date` ,`Name`,`Content`,`Status`, `node`.`ID` AS `Node-ID` ,`user`.`ID` AS `User-ID` FROM `user` INNER JOIN `todo-list` AS `list` ON `user`.`ID` = `list`.`User-ID` INNER JOIN `list-node` AS `node` ON `list`.`ID` = `node`.`List-ID` WHERE `user`.`ID` = ? AND `list`.`Date` = ?', [req.session.user.userId, `${req.params.year}-${req.params.month}-${req.params.day}`], function (error, results, fields) {
+        if (error) return res.json(SetResJson(false, "伺服器錯誤", null));
+        if (results.length < 1) {
             return res.json(SetResJson(true, "查無資料", null));
         }
         //時間處理
@@ -81,27 +82,47 @@ router.get('/myList/:year/:month/:day',function(req,res){
             return { ...item, Date: formattedDate };
         });
         // console.log(results);
-        res.json(SetResJson(true,null,results));  
-    }); 
+        res.json(SetResJson(true, null, results));
+    });
 });
 
-router.patch('/myList/status/update',function(req,res){
+router.patch('/myList/status/update', function (req, res) {
     //檢查訪問權限
-    CheckLoginStatus(req,res);
+    CheckLoginStatus(req, res);
     let data = req.body.checkBoxList;
     const categorizedData = data.map(str => str.split('_').map(Number));
-    categorizedData.forEach((item)=>{
-        db.query('UPDATE `list-node` SET `Status`= ? WHERE `list-node`.`ID`= ?',[!item[1],item[0]],function(error, results, fields) {
+    categorizedData.forEach((item) => {
+        db.query('UPDATE `list-node` SET `Status`= ? WHERE `list-node`.`ID`= ?', [!item[1], item[0]], function (error, results, fields) {
             if (error) throw error;
         });
     })
-    res.json(SetResJson(true,null,null));
+    res.json(SetResJson(true, null, null));
+});
+
+router.post('/myList/create', function (req, res) {
+    //檢查訪問權限
+    CheckLoginStatus(req, res);
+    const { listName, listData, Date } = req.body;
+    if (listName === "" || listName === null) return res.json(SetResJson(false, "清單名稱不可為空白", null));
+    if (listData.length === 0) return res.json(SetResJson(false, "應做事項至少要有一件事情", null));
+    try {
+        db.query('INSERT INTO `todo-list` (`User-ID`,`name`,`Date`) VALUE(?,?,?)', [req.session.user.userId, listName, Date], function (error, results, fields) {
+            for (const item of listData) {
+                db.query('INSERT INTO `list-node` (`List-ID`,`Content`) VALUE(?,?)', [results.insertId, item], function (error, results, fields) {
+                });
+            };
+            return res.json(SetResJson(true, "新增成功", null));
+        });
+    } catch {
+        return res.json(SetResJson(false, "伺服器錯誤，可能是使用者未登入", null));
+    }
+
 });
 
 
 app.use('/', router);
 
-app.listen(port, function() {
+app.listen(port, function () {
     console.log('server port: ' + port);
 })
 
@@ -115,11 +136,11 @@ app.listen(port, function() {
  * @param {string | Array | Object} data - data
  * @returns {Object}
  */
- function SetResJson(success, message = null, data = null){
+function SetResJson(success, message = null, data = null) {
     return resJson = {
-        "success":success,
-        "message":message,
-        "data":data
+        "success": success,
+        "message": message,
+        "data": data
     };
 }
 
@@ -130,7 +151,7 @@ app.listen(port, function() {
  * @param {Object} user - 使用者 session 物件
  * @returns {Object} - 包含狀態和訊息的物件
  */
- function CheckLoginStatus(req,res) {
+function CheckLoginStatus(req, res) {
     if (!req.session.user || !req.session.user.isLoggedIn) {
         res.status(401);
         return res.json(SetResJson(false, '權限不足'));

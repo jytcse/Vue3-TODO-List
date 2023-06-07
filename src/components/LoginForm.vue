@@ -34,7 +34,6 @@ import { useRouter } from 'vue-router'
 export default {
   setup() {	
     const router = useRouter();
-    const name = 'LoginForm';
     const axios = inject('axios');
     let username = ref('');
     let password = ref('');
@@ -62,7 +61,6 @@ export default {
     }
 
     return {
-      name,
       username,
       password,
       submit,
