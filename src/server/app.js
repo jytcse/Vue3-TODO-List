@@ -10,7 +10,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 
 app.use(cors({
-    origin: [process.env.VUE_APP_URL, process.env.VUE_APP_API_URL],
+    origin: ['http://localhost:8080', 'http://localhost:8081'],
     credentials: true
 }));
 app.use(express.json());
