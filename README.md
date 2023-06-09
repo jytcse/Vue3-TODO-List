@@ -17,9 +17,7 @@
 
 
 ## Video Demo
-<video width="600" height="340" controls>
-  <source src="https://cdn.discordapp.com/attachments/678253686232711188/1116663546688852058/2023-06-09_17-32-41-00.00.00.000-00.01.49.003.mp4" type="video/mp4">
-</video>
+https://youtu.be/_ZKOb1FNrbU
 
 ---
 
