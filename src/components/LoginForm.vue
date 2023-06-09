@@ -7,9 +7,9 @@
           <span>{{ errorMessage }}</span>
         </div>
         <span class="text-xl my-2">帳號:</span>
-        <input type="text" name="username" v-model="username" required placeholder="" class="text-lg outline-none" >
+        <input type="text" name="username" autocomplete="off" v-model="username" required placeholder="" class="text-lg outline-none" >
         <span class="text-xl my-2">密碼:</span>
-        <input type="password" name="passowrd" v-model="password" required placeholder="" class="text-lg outline-none">
+        <input type="password" name="passowrd" autocomplete="off" v-model="password" required placeholder="" class="text-lg outline-none">
         <button v-if="!isSubmit" type="submit" class=" drop-shadow rounded-full bg-[#864a28] text-white px-5 py-2 mb-3 mt-4">登入</button>
         <button v-else type="button" class="
         inline-flex items-center justify-center px-5 py-2 mb-3 mt-4 

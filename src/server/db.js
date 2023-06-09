@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
   database: process.env.DB_DATABASE,
   timezone: process.env.DB_TIMEZONE,
   ssl:{
-    ca: fs.readFileSync(__dirname + "\\ssl\\" + process.env.SSL_CERTIFICATE_FILE_NAME)
+    ca: fs.readFileSync(__dirname + "\\ssl\\" + process.env.SSL_CERTIFICATE_FILE_NAME) || '',
   },
 });
 connection.connect(function(err) {
