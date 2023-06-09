@@ -4,13 +4,15 @@
     <template v-if="!isLoggedIn">
 
       <router-link to="/" class="text-[#403933] font-bold ">Home</router-link>
+
     </template>
     <template v-if="isLoggedIn">
       <router-link to="/Dashboard" class="text-[#403933] font-bold">Dashboard</router-link> |
     </template>
+
     <!-- <router-link to="/about" class="text-[#403933] font-bold">About</router-link> -->
     <template v-if="isLoggedIn">
-      <!-- | -->
+
       <a href="./" @click.prevent="logout" class="text-[#403933] font-bold">Logout</a>
     </template>
     

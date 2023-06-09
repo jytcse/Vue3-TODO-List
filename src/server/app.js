@@ -7,9 +7,11 @@ const app = express();
 const session = require('express-session');
 const cors = require('cors');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
 app.use(cors({
     origin: ["http://localhost:8080","http://localhost:8081","http://127.0.0.1:8080"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+
     credentials: true
 }));
 app.use(express.json());
