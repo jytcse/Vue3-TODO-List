@@ -1,6 +1,29 @@
 # Vue3-TODO-List
 
-## Demo
+### 說明 :
+這是一個SPA網頁，可以讓使用者紀錄每天該做的事情，或是對未來應做的事情進行規劃
+
+### 技術使用:
+- VUE
+- VUE-Router
+- Tailwind CSS
+- Axios
+- Express
+- Express-Session
+- MySQL
+
+
+---
+
+
+## Video Demo
+<video width="600" height="340" controls>
+  <source src="https://cdn.discordapp.com/attachments/678253686232711188/1116663546688852058/2023-06-09_17-32-41-00.00.00.000-00.01.49.003.mp4" type="video/mp4">
+</video>
+
+---
+
+## Image Demo
 
 ### Login
 ![](https://media.discordapp.net/attachments/678253686232711188/1116617787817869342/image.png?width=1179&height=575)
